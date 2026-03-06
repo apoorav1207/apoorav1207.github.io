@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apoorav Maulik Sharma | Computer Vision Researcher</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    #vision-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 8rem;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 55%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .hero-eyebrow .blink {
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero h1 .accent {
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .hero-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-accent);
+      border-radius: 100px;
+      color: var(--accent);
+      background: var(--accent-dim);
+      letter-spacing: 1px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      padding: 0.9rem 2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Convolution Animation */
+    .hero-visual {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) scale(0.85);
+      width: 420px;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.2s;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .conv-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .conv-grid-wrap {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .conv-section {
+      text-align: center;
+    }
+
+    .conv-section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .pixel-grid {
+      display: grid;
+      gap: 2px;
+      border: 1px solid var(--border-accent);
+      border-radius: 4px;
+      padding: 3px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .pixel-grid.input-grid {
+      grid-template-columns: repeat(6, 26px);
+    }
+
+    .pixel-grid.kernel-grid {
+      grid-template-columns: repeat(3, 26px);
+    }
+
+    .pixel-grid.output-grid {
+      grid-template-columns: repeat(4, 26px);
+    }
+
+    .pixel-cell {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--text-muted);
+      border-radius: 2px;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .pixel-cell.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .pixel-cell.kernel-active {
+      background: rgba(255, 170, 0, 0.2);
+      color: #ffaa00;
+      box-shadow: 0 0 8px rgba(255, 170, 0, 0.3);
+    }
+
+    .pixel-cell.output-active {
+      background: rgba(120, 80, 255, 0.2);
+      color: #7850ff;
+      box-shadow: 0 0 8px rgba(120, 80, 255, 0.3);
+    }
+
+    .conv-arrow {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      padding-top: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .conv-formula {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.8rem;
+      opacity: 0.6;
+    }
+
+    .conv-formula .hl {
+      color: var(--accent);
+    }
+
+    /* Section headers */
+    .section-header {
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600;
+    }
+
+    /* About */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-size: 1.05rem;
+    }
+
+    .about-text a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-accent);
+      transition: border-color 0.3s;
+    }
+
+    .about-text a:hover {
+      border-color: var(--accent);
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* Publications */
+    .pub-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .pub-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      transition: all 0.4s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .pub-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateX(8px);
+    }
+
+    .pub-year {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 2px;
+    }
+
+    .pub-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .pub-venue {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .pub-authors {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .pub-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .pub-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .pub-link-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.3s;
+      margin-top: 0.8rem;
+    }
+
+    .pub-card:hover .pub-link-icon {
+      opacity: 1;
+    }
+
+    /* Skills */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: all 0.4s;
+    }
+
+    .skill-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-6px);
+    }
+
+    .skill-icon {
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .skill-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+    }
+
+    .skill-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .skill-tech {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .skill-tech span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      padding: 0.25rem 0.55rem;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Projects */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .project-lang {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .project-lang .lang-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .project-lang .lang-dot.matlab {
+      background: #e16737;
+    }
+
+    .project-lang .lang-dot.julia {
+      background: #a270ba;
+    }
+
+    .project-lang .lang-dot.javascript {
+      background: #f1e05a;
+    }
+
+    .project-lang .lang-dot.html {
+      background: #e34c26;
+    }
+
+    .project-source {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .project-source .gh-icon {
+      font-size: 0.7rem;
+      color: var(--accent);
+    }
+
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.2rem;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .project-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-4px);
+    }
+
+    .project-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle at top right, var(--accent-dim), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .project-card:hover::after {
+      opacity: 1;
+    }
+
+    .project-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .project-status .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .project-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+    }
+
+    .project-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1.2rem;
+    }
+
+    /* Blog */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .blog-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.4s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .blog-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-6px);
+    }
+
+    .blog-card:hover .blog-thumb {
+      transform: scale(1.05);
+    }
+
+    .blog-thumb-wrap {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .blog-thumb {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card-hover));
+    }
+
+    .blog-thumb-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(to top, var(--bg-card), transparent);
+      pointer-events: none;
+    }
+
+    .blog-category {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      padding: 0.3rem 0.7rem;
+      background: rgba(0, 212, 170, 0.9);
+      color: var(--bg-primary);
+      border-radius: 3px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      z-index: 2;
+    }
+
+    .blog-body {
+      padding: 1.5rem 1.8rem 1.8rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .blog-meta .separator {
+      width: 3px;
+      height: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+    }
+
+    .blog-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0.8rem;
+      transition: color 0.3s;
+    }
+
+    .blog-card:hover h3 {
+      color: var(--accent);
+    }
+
+    .blog-card p {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .blog-read-more {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: gap 0.3s;
+    }
+
+    .blog-card:hover .blog-read-more {
+      gap: 1rem;
+    }
+
+    .blog-featured {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      overflow: hidden;
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+
+    .blog-featured:hover {
+      border-color: var(--border-accent);
+    }
+
+    .blog-featured:hover h3 {
+      color: var(--accent);
+    }
+
+    .blog-featured .blog-thumb-wrap {
+      height: 100%;
+      min-height: 280px;
+    }
+
+    .blog-featured .blog-body {
+      padding: 2.5rem;
+      justify-content: center;
+    }
+
+    .blog-featured h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      transition: color 0.3s;
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .blog-featured p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .blog-featured .blog-category {
+      top: 1.5rem;
+      left: 1.5rem;
+    }
+
+    .blog-view-all {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 3rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--accent), var(--border), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 3rem;
+      padding-left: 2rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -3.35rem;
+      top: 8px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--accent);
+      background: var(--bg-primary);
+      border-radius: 50%;
+    }
+
+    .timeline-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-item h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-item h4 {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-bottom: 0.8rem;
+    }
+
+    .timeline-item h4 a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .timeline-item h4 a:hover {
+      text-decoration: underline;
+    }
+
+    .timeline-item p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Contact */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .contact-text p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.3s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--border-accent);
+      transform: translateX(8px);
+      background: var(--bg-card-hover);
+    }
+
+    .contact-link-icon {
+      font-size: 0.85rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-dim);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .contact-link-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .contact-link-value {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .contact-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ascii-art {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      line-height: 1.3;
+      color: var(--accent);
+      opacity: 0.5;
+      text-align: center;
+      white-space: pre;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 3rem;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    footer .at {
+      color: var(--accent);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      z-index: 50;
+      pointer-events: none;
+      animation: scanDown 8s linear infinite;
+      opacity: 0.15;
+    }
+
+    @keyframes scanDown {
+      0% {
+        top: -2px;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      .nav-links {
+        gap: 1rem;
+      }
+
+      section {
+        padding: 4rem 1.5rem;
+      }
+
+      .about-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .skills-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .projects-grid,
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+
+      .hero-content {
+        max-width: 100%;
+      }
+
+      .pub-card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .pub-year {
+        writing-mode: horizontal-tb;
+      }
+
+      .blog-featured {
+        grid-template-columns: 1fr;
+      }
+
+      .blog-featured .blog-thumb-wrap {
+        min-height: 200px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+      }
+
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .about-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scan-line"></div>
+  <canvas id="vision-canvas"></canvas>
+
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#research">Research</a>
+      <a href="#expertise">Expertise</a>
+      <a href="#projects">Projects</a>
+      <a href="#blog">Blog</a>
+      <a href="#experience">Journey</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">PhD — Computer Vision & Image Processing <span class="blink">_</span></div>
+      <h1>Apoorav Maulik<br><span class="accent">Sharma</span></h1>
+      <p class="hero-subtitle">PhD in Computer Vision & Image Processing from Panjab University, Chandigarh —
+        specializing
+        in medical image denoising, image
+        fusion, and intelligent visual systems through deep learning & signal processing.</p>
+      <div class="hero-tags">
+        <span class="hero-tag">Image Fusion</span>
+        <span class="hero-tag">Medical Image Denoising</span>
+        <span class="hero-tag">Image Inpainting</span>
+        <span class="hero-tag">Pattern Recognition</span>
+        <span class="hero-tag">Feature Extraction</span>
+      </div>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Get in Touch →</a>
+        <a href="https://github.com/apoorav1207" target="_blank" class="btn btn-outline">GitHub</a>
+        <a href="https://scholar.google.com/citations?hl=en&user=8Q8M2-cAAAAJ" target="_blank"
+          class="btn btn-outline">Google Scholar</a>
+        <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank"
+          class="btn btn-outline">ResearchGate</a>
+      </div>
+    </div>
+
+    <!-- Convolution Animation -->
+    <div class="hero-visual">
+      <div class="conv-title">2D Convolution Operation</div>
+      <div class="conv-grid-wrap">
+        <div class="conv-section">
+          <div class="conv-section-label">Input Image (6×6)</div>
+          <div class="pixel-grid input-grid" id="inputGrid"></div>
+        </div>
+        <div class="conv-arrow">✱</div>
+        <div class="conv-section">
+          <div class="conv-section-label">Kernel (3×3)</div>
+          <div class="pixel-grid kernel-grid" id="kernelGrid"></div>
+        </div>
+        <div class="conv-arrow">=</div>
+        <div class="conv-section">
+          <div class="conv-section-label">Feature Map (4×4)</div>
+          <div class="pixel-grid output-grid" id="outputGrid"></div>
+        </div>
+      </div>
+      <div class="conv-formula" id="convFormula"><span class="hl">Σ</span> (input ⊙ kernel) → feature map</div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header reveal">
+      <div class="section-label">01 — About</div>
+      <h2 class="section-title">Building Vision<br>for Machines</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>I am <strong>Apoorav Maulik Sharma</strong>, a former Research Fellow in the Department of Electronics &
+          Communication Engineering (ECE) at the <a href="https://uiet.puchd.ac.in/" target="_blank">University
+            Institute of Engineering & Technology (UIET)</a>, Panjab University, Chandigarh.</p>
+        <p>My research bridges mathematical foundations and practical imaging systems — specializing in
+          <strong>multimodal medical image denoising</strong>, <strong>low-light image fusion</strong> (infrared &
+          visible spectrum), <strong>image inpainting</strong>, and <strong>image matting</strong>. I work with
+          techniques spanning spatial-domain filtering, wavelet transforms, Bayesian analysis, and deep learning
+          architectures.
+        </p>
+        <p>With 19 peer-reviewed publications, 543+ citations, and features in <a
+            href="https://www.laserfocusworld.com/home/contact/14292456/apoorav-maulik-sharma" target="_blank">Laser
+            Focus World</a> and <a href="https://www.nature.com/articles/s41598-024-67502-y" target="_blank">Nature
+            Scientific Reports</a>, I am dedicated to research that transforms diagnostic imaging and visual AI.</p>
+      </div>
+      <div class="about-stats reveal">
+        <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank" class="stat-card">
+          <div class="stat-number">19+</div>
+          <div class="stat-label">Publications</div>
+        </a>
+        <a href="https://scholar.google.com/citations?hl=en&user=8Q8M2-cAAAAJ" target="_blank" class="stat-card">
+          <div class="stat-number">543+</div>
+          <div class="stat-label">Citations</div>
+        </a>
+        <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank" class="stat-card">
+          <div class="stat-number">3.5K+</div>
+          <div class="stat-label">Research Reads</div>
+        </a>
+        <a href="https://orcid.org/my-orcid?orcid=0000-0002-1650-0136" target="_blank" class="stat-card">
+          <div class="stat-number" style="font-size:1.5rem;">ORCID</div>
+          <div class="stat-label">0000-0002-1650-0136</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="research">
+    <div class="section-header reveal">
+      <div class="section-label">02 — Research</div>
+      <h2 class="section-title">Selected<br>Publications</h2>
+    </div>
+    <div class="pub-list">
+      <a href="https://www.researchgate.net/publication/395064508" target="_blank" class="pub-card reveal">
+        <div class="pub-year">2025</div>
+        <div class="pub-info">
+          <h3>From Spatial Domain to Patch-Based Models: Comprehensive Review of Multimodal Medical Image Denoising</h3>
+          <div class="pub-venue">Full-text Article — Medical Image Processing</div>
+          <div class="pub-authors">A.M. Sharma, A. Dogra, B. Goyal, V. Kukreja</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">Medical</span><span class="pub-tag">Denoising</span><span
+              class="pub-tag">Review</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+      <a href="https://www.nature.com/articles/s41598-024-67502-y" target="_blank" class="pub-card reveal">
+        <div class="pub-year">2024</div>
+        <div class="pub-info">
+          <h3>Enhanced Low-Light Image Fusion through Multi-Stage Processing with Bayesian Analysis</h3>
+          <div class="pub-venue">Scientific Reports (Nature) — Vol. 14, Art. 16987 — 3,226 Accesses</div>
+          <div class="pub-authors">A.M. Sharma, R. Vig, A. Dogra, B. Goyal, A. Alkhayyat, V. Kukreja, M.J. Saikia</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">IR/VIS</span><span class="pub-tag">Bayesian</span><span
+              class="pub-tag">Nature</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+      <a href="https://www.researchgate.net/publication/377759164" target="_blank" class="pub-card reveal">
+        <div class="pub-year">2024</div>
+        <div class="pub-info">
+          <h3>Comparative Inspection & Performance Evaluation of Image Fusion Techniques for Medical Imaging</h3>
+          <div class="pub-venue">Research Article — Transform Domain Analysis</div>
+          <div class="pub-authors">A.M. Sharma et al.</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">Fusion</span><span class="pub-tag">Medical</span><span
+              class="pub-tag">Evaluation</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+
+      <a href="https://www.laserfocusworld.com/detectors-imaging/article/14295241/exploring-image-inpainting-for-seamless-restitution"
+        target="_blank" class="pub-card reveal">
+        <div class="pub-year">LFW</div>
+        <div class="pub-info">
+          <h3>Exploring Image Inpainting for Seamless Restitution</h3>
+          <div class="pub-venue">Laser Focus World — Industry Feature</div>
+          <div class="pub-authors">A.M. Sharma, V. Kukreja, R. Vig</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">Inpainting</span><span class="pub-tag">PSNR</span><span
+              class="pub-tag">SSIM</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+      <a href="https://www.laserfocusworld.com/detectors-imaging/article/16556302/image-fusion-spatial-domain-filtering-techniques-dictate-low-light-visible-and-ir-image-fusion-performance"
+        target="_blank" class="pub-card reveal">
+        <div class="pub-year">LFW</div>
+        <div class="pub-info">
+          <h3>Spatial-Domain Filtering Techniques for Low-Light IR & Visible Image Fusion</h3>
+          <div class="pub-venue">Laser Focus World — Industry Feature</div>
+          <div class="pub-authors">A.M. Sharma, B. Goyal, S. Agrawal, R. Vig</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">Spatial</span><span class="pub-tag">IR Fusion</span><span
+              class="pub-tag">Filter</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+      <a href="https://www.laserfocusworld.com/detectors-imaging/article/14296455/unveiling-the-art-of-image-matting-techniques-and-applications"
+        target="_blank" class="pub-card reveal">
+        <div class="pub-year">LFW</div>
+        <div class="pub-info">
+          <h3>Unveiling the Art of Image Matting: Techniques and Applications</h3>
+          <div class="pub-venue">Laser Focus World — Industry Feature</div>
+          <div class="pub-authors">A. Dogra, A.M. Sharma, B. Goyal, V. Kukreja, R. Vig</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">Matting</span><span class="pub-tag">Alpha</span><span
+              class="pub-tag">Compositing</span></div>
+          <div class="pub-link-icon">View →</div>
+        </div>
+      </a>
+      <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank" class="pub-card reveal">
+        <div class="pub-year">ALL</div>
+        <div class="pub-info">
+          <h3>View All 19+ Publications →</h3>
+          <div class="pub-venue">Active Noise Control for NICUs, Image Denoising Reviews, Tensor SVD & more</div>
+          <div class="pub-authors">19 publications • 543 citations • 3,526 reads</div>
+        </div>
+        <div>
+          <div class="pub-tags"><span class="pub-tag">ResearchGate</span><span class="pub-tag">Full Profile</span></div>
+          <div class="pub-link-icon">Visit →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- EXPERTISE -->
+  <section id="expertise">
+    <div class="section-header reveal">
+      <div class="section-label">03 — Expertise</div>
+      <h2 class="section-title">Technical<br>Arsenal</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal"><span class="skill-icon">◎</span>
+        <h3>Image Fusion</h3>
+        <p>Multi-stage IR & visible spectrum fusion, Bayesian analysis, Lipschitz constraints, guided filtering for
+          low-light enhancement.</p>
+        <div class="skill-tech"><span>IR/VIS</span><span>Bayesian</span><span>Wavelet</span><span>Multi-scale</span>
+        </div>
+      </div>
+      <div class="skill-card reveal"><span class="skill-icon">⬡</span>
+        <h3>Medical Image Denoising</h3>
+        <p>Spatial to patch-based denoising for MRI, CT, and multimodal images. Noise artifact reduction for clinical
+          diagnostics.</p>
+        <div class="skill-tech"><span>MRI</span><span>CT</span><span>HOSVD</span><span>Filtering</span></div>
+      </div>
+      <div class="skill-card reveal"><span class="skill-icon">◈</span>
+        <h3>Image Inpainting & Matting</h3>
+        <p>DKH hybrid methods, deep CNN restoration, KNN patch reconstruction, and alpha matte estimation techniques.
+        </p>
+        <div class="skill-tech"><span>Deep CNN</span><span>KNN</span><span>Biharmonic</span><span>GAN</span></div>
+      </div>
+      <div class="skill-card reveal"><span class="skill-icon">△</span>
+        <h3>Signal & Image Processing</h3>
+        <p>DSP fundamentals, wavelet transforms, Fourier analysis, spatial filtering, and transform-domain techniques.
+        </p>
+        <div class="skill-tech"><span>MATLAB</span><span>DSP</span><span>FFT</span><span>Wavelet</span></div>
+      </div>
+      <div class="skill-card reveal"><span class="skill-icon">⊞</span>
+        <h3>Pattern Recognition</h3>
+        <p>Feature extraction, texture analysis, image segmentation, and classification for complex visual pattern
+          analysis.</p>
+        <div class="skill-tech"><span>HOG</span><span>LBP</span><span>SIFT</span><span>SVM</span></div>
+      </div>
+      <div class="skill-card reveal"><span class="skill-icon">⟐</span>
+        <h3>Deep Learning</h3>
+        <p>CNN architectures, progressive restoration, tensor decomposition, and deep generative models.</p>
+        <div class="skill-tech"><span>PyTorch</span><span>TensorFlow</span><span>U-Net</span><span>GAN</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-header reveal">
+      <div class="section-label">04 — Projects</div>
+      <h2 class="section-title">Featured<br>Work</h2>
+    </div>
+    <div class="projects-grid">
+      <a href="https://github.com/apoorav1207/Lipschitz_Bayesian_Fuse" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Published — Nature Scientific Reports</div>
+        <h3>Lipschitz Bayesian Fuse</h3>
+        <p>Multi-stage IR & visible image fusion using Lipschitz constraint-based decomposition, Bayesian probabilistic
+          modeling with four likelihood functions, and Frankot-Chellappa surface integration.</p>
+        <div class="skill-tech"><span>Bayesian</span><span>IR/VIS</span><span>Lipschitz</span><span>EGIF</span></div>
+        <div class="project-lang"><span class="lang-dot matlab"></span> MATLAB</div>
+        <div class="project-source"><span class="gh-icon">⌥</span> github.com/apoorav1207</div>
+      </a>
+      <a href="https://github.com/apoorav1207/Shearlet_en_variants" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Research Code — Image Fusion</div>
+        <h3>Shearlet Energy & Variants</h3>
+        <p>Four fusion strategies using Shearlet transforms for IR-visible image fusion — including L1/L2 regularization
+          and target-enhanced fusion with ShearLab 3D.</p>
+        <div class="skill-tech"><span>Shearlet</span><span>L1/L2</span><span>IR Fusion</span><span>Transform</span>
+        </div>
+        <div class="project-lang"><span class="lang-dot matlab"></span> MATLAB</div>
+        <div class="project-source"><span class="gh-icon">⌥</span> github.com/apoorav1207</div>
+      </a>
+      <a href="https://github.com/apoorav1207/Image_Processing_App-Julia" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Open Source — Application</div>
+        <h3>Image Processing App (Julia)</h3>
+        <p>Interactive image processing application with 30+ filters & transforms, live preview, async processing, and a
+          modern dark-theme UI with glassmorphism design.</p>
+        <div class="skill-tech"><span>Julia</span><span>30+ Filters</span><span>Live Preview</span><span>Async</span>
+        </div>
+        <div class="project-lang"><span class="lang-dot julia"></span> Julia</div>
+        <div class="project-source"><span class="gh-icon">⌥</span> github.com/apoorav1207</div>
+      </a>
+      <a href="https://github.com/apoorav1207/Student_Hub" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Open Source — Web App</div>
+        <h3>Student Hub</h3>
+        <p>Interactive student data analysis and management platform built with React — featuring attendance tracking,
+          result analysis, and semester-wise performance insights.</p>
+        <div class="skill-tech"><span>React</span><span>JavaScript</span><span>Analytics</span><span>Dashboard</span>
+        </div>
+        <div class="project-lang"><span class="lang-dot javascript"></span> JavaScript</div>
+        <div class="project-source"><span class="gh-icon">⌥</span> github.com/apoorav1207</div>
+      </a>
+      <a href="https://github.com/apoorav1207/Time-Table_Scheduler_App" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Open Source — Web App</div>
+        <h3>College Timetable Scheduler</h3>
+        <p>Full-featured scheduling system with conflict detection, faculty workload tracking, drag-and-extend booking,
+          multi-week support, and PDF/Excel export capabilities.</p>
+        <div class="skill-tech"><span>Scheduling</span><span>Conflict
+            Detection</span><span>Export</span><span>Analytics</span></div>
+        <div class="project-lang"><span class="lang-dot html"></span> HTML / JS</div>
+        <div class="project-source"><span class="gh-icon">⌥</span> github.com/apoorav1207</div>
+      </a>
+      <a href="https://www.researchgate.net/publication/301555834" target="_blank" class="project-card reveal">
+        <div class="project-status"><span class="dot"></span> Published — Research Paper</div>
+        <h3>Active Noise Control for NICUs</h3>
+        <p>ANC systems using DSP to create zones of silence near neonatal incubators — reducing equipment noise while
+          playing beneficial sounds for critical infant care.</p>
+        <div class="skill-tech"><span>DSP</span><span>ANC</span><span>NICU</span><span>Real-time</span></div>
+        <div class="project-lang"><span class="lang-dot matlab"></span> MATLAB / DSP</div>
+        <div class="project-source"><span class="gh-icon">📄</span> ResearchGate</div>
+      </a>
+    </div>
+    <div style="text-align: center; margin-top: 2.5rem;" class="reveal">
+      <a href="https://github.com/apoorav1207" target="_blank" class="btn btn-outline">View All Repositories on GitHub
+        →</a>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section id="blog">
+    <div class="section-header reveal">
+      <div class="section-label">05 — Insights</div>
+      <h2 class="section-title">Latest from<br>the Field</h2>
+    </div>
+    <div class="blog-grid">
+      <div class="blog-featured reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb"
+            style="background: linear-gradient(135deg, #0d1a17, #0a1520); flex-direction: column; gap: 0.5rem;">
+            <div style="font-size: 3.5rem; line-height: 1;">◎</div>
+            <div
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--accent); letter-spacing: 3px; opacity: 0.7;">
+              BAYESIAN FUSION</div>
+          </div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Featured</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Mar 2026</span><span class="separator"></span><span>10 min read</span></div>
+          <h3>Why Bayesian Priors Outperform Learned Weights in Low-Light Fusion</h3>
+          <p>A deep dive into how Gaussian, Laplacian, and Weibull likelihood functions create superior weight maps for
+            IR-visible image fusion — and why hand-crafted priors still beat black-box models in edge preservation.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb" style="background: linear-gradient(135deg, #101018, #18102a);"><span
+              style="opacity: 0.4;">⬡</span></div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Tutorial</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Feb 2026</span><span class="separator"></span><span>8 min read</span></div>
+          <h3>Lipschitz Constraints for Image Decomposition: A MATLAB Walkthrough</h3>
+          <p>Step-by-step guide to implementing Lipschitz-bounded gradient smoothing for separating base and detail
+            layers — with code snippets from my Nature Scientific Reports paper.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb" style="background: linear-gradient(135deg, #0f1510, #0a150f);"><span
+              style="opacity: 0.4;">◈</span></div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Review</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Jan 2026</span><span class="separator"></span><span>7 min read</span></div>
+          <h3>Spatial vs. Patch-Based Denoising: What Works for MRI & CT in 2026?</h3>
+          <p>Benchmarking classical spatial-domain filters against modern patch-based and deep learning denoisers on
+            real multimodal clinical data — lessons from our comprehensive survey.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb" style="background: linear-gradient(135deg, #151015, #1a0f18);"><span
+              style="opacity: 0.4;">△</span></div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Explainer</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Dec 2025</span><span class="separator"></span><span>6 min read</span></div>
+          <h3>Shearlet Transforms for IR-Visible Fusion: Energy, Regularization & Beyond</h3>
+          <p>How shearlet-based multi-scale decomposition with L1/L2 regularization captures directional features that
+            wavelets miss — and why it matters for surveillance and remote sensing.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb" style="background: linear-gradient(135deg, #0d100f, #141a15);"><span
+              style="opacity: 0.4;">⊞</span></div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Trend</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Nov 2025</span><span class="separator"></span><span>5 min read</span></div>
+          <h3>The Rise of Frankot-Chellappa in Modern Image Fusion Pipelines</h3>
+          <p>Surface from Shade integration is making a comeback — how enforcing integrability constraints from 1988 is
+            solving gradient-domain fusion problems that neural networks struggle with.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+      <div class="blog-card reveal">
+        <div class="blog-thumb-wrap">
+          <div class="blog-thumb" style="background: linear-gradient(135deg, #120d18, #0f1520);"><span
+              style="opacity: 0.4;">⟐</span></div>
+          <div class="blog-thumb-overlay"></div>
+          <div class="blog-category">Opinion</div>
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta"><span>Oct 2025</span><span class="separator"></span><span>4 min read</span></div>
+          <h3>PSNR, SSIM, and LPIPS — Are We Measuring Image Quality Wrong?</h3>
+          <p>Traditional metrics dominate benchmarks, but do they capture perceptual quality? A critical look at how
+            evaluation metrics shape — and sometimes mislead — image restoration research.</p>
+          <div class="blog-read-more">Read Article →</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-header reveal">
+      <div class="section-label">06 — Journey</div>
+      <h2 class="section-title">Education &<br>Experience</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-date">PhD — Computer Vision & Image Processing</div>
+        <h3>Doctor of Philosophy</h3>
+        <h4>Dept. of ECE, <a href="https://uiet.puchd.ac.in/" target="_blank">UIET, Panjab University, Chandigarh</a>
+        </h4>
+        <p>Doctoral research on multimodal medical image denoising, image fusion, inpainting & signal processing. 19
+          publications, 543+ citations. Featured in Nature Scientific Reports & Laser Focus World.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-date">M.Tech</div>
+        <h3>Master of Technology</h3>
+        <h4><a href="https://uiet.puchd.ac.in/" target="_blank">Panjab University, Punjab</a></h4>
+        <p>Graduate research in electronics & communication engineering focusing on signal processing and image
+          analysis.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-date">B.Tech</div>
+        <h3>Bachelor of Technology</h3>
+        <h4>Himachal Pradesh University, Himachal Pradesh</h4>
+        <p>Undergraduate studies building foundations in electronics, programming, and mathematical analysis.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-date">Industry Features</div>
+        <h3>Featured Researcher</h3>
+        <h4><a href="https://www.laserfocusworld.com/home/contact/14292456/apoorav-maulik-sharma" target="_blank">Laser
+            Focus World</a> — Multiple Feature Articles</h4>
+        <p>Industry-facing articles on image inpainting, spatial-domain fusion, and image matting in the globally
+          recognized photonics publication.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-header reveal">
+      <div class="section-label">07 — Connect</div>
+      <h2 class="section-title">Let's<br>Collaborate</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-text reveal">
+        <p>Whether you're interested in research collaboration, consulting on computer vision projects, or exploring
+          medical imaging AI — I'd love to connect.</p>
+        <div class="contact-links">
+          <a href="https://github.com/apoorav1207" target="_blank" class="contact-link">
+            <div class="contact-link-icon">GH</div>
+            <div>
+              <div class="contact-link-label">GitHub</div>
+              <div class="contact-link-value">apoorav1207 • 6 Repositories</div>
+            </div>
+          </a>
+          <a href="https://www.linkedin.com/in/apoorav-sharma-aps1207/" target="_blank" class="contact-link">
+            <div class="contact-link-icon">in</div>
+            <div>
+              <div class="contact-link-label">LinkedIn</div>
+              <div class="contact-link-value">Apoorav Maulik Sharma</div>
+            </div>
+          </a>
+          <a href="https://scholar.google.com/citations?hl=en&user=8Q8M2-cAAAAJ" target="_blank" class="contact-link">
+            <div class="contact-link-icon">GS</div>
+            <div>
+              <div class="contact-link-label">Google Scholar</div>
+              <div class="contact-link-value">Publications & Citations Profile</div>
+            </div>
+          </a>
+          <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank"
+            class="contact-link">
+            <div class="contact-link-icon">RG</div>
+            <div>
+              <div class="contact-link-label">ResearchGate</div>
+              <div class="contact-link-value">19 Publications • 543+ Citations • 3.5K+ Reads</div>
+            </div>
+          </a>
+          <a href="https://orcid.org/my-orcid?orcid=0000-0002-1650-0136" target="_blank" class="contact-link">
+            <div class="contact-link-icon">ID</div>
+            <div>
+              <div class="contact-link-label">ORCID</div>
+              <div class="contact-link-value">0000-0002-1650-0136</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="contact-visual reveal">
+        <div class="ascii-art">
+          ╔═════════════════════════════╗
+          ║ ║
+          ║ ┌───────────────────┐ ║
+          ║ │ ◉ DETECTED: │ ║
+          ║ │ │ ║
+          ║ │ COLLABORATION │ ║
+          ║ │ OPPORTUNITY │ ║
+          ║ │ │ ║
+          ║ │ conf: 0.99 │ ║
+          ║ └───────────────────┘ ║
+          ║ ║
+          ║ > STATUS: OPEN ║
+          ║ > ORCID: 0000-0002-1650 ║
+          ║ > PUBS: 19+ | CITE: 543+ ║
+          ║ ║
+          ╚═════════════════════════════╝
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Designed with precision — <span class="at">Apoorav Maulik Sharma</span> © 2025</p>
+    <p style="margin-top: 0.5rem; opacity: 0.5;">
+      PhD, ECE, UIET, Panjab University •
+      <a href="https://github.com/apoorav1207" target="_blank">GitHub</a> •
+      <a href="https://scholar.google.com/citations?hl=en&user=8Q8M2-cAAAAJ" target="_blank">Scholar</a> •
+      <a href="https://www.researchgate.net/profile/Apoorav-Sharma?ev=hdr_xprf" target="_blank">ResearchGate</a> •
+      <a href="https://orcid.org/my-orcid?orcid=0000-0002-1650-0136" target="_blank">ORCID</a>
+    </p>
+  </footer>
+
+  <script>
+    // CONVOLUTION ANIMATION
+    const inputData = [
+      [10, 25, 50, 80, 120, 200],
+      [15, 30, 60, 90, 140, 180],
+      [20, 45, 70, 110, 160, 190],
+      [35, 55, 85, 130, 170, 210],
+      [40, 65, 95, 145, 185, 220],
+      [50, 75, 100, 150, 195, 240]
+    ];
+    const kernel = [[1, 0, -1], [1, 0, -1], [1, 0, -1]];
+
+    function buildGrid(id, data) {
+      const grid = document.getElementById(id);
+      grid.innerHTML = '';
+      for (let r = 0; r < data.length; r++) {
+        for (let c = 0; c < data[r].length; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'pixel-cell';
+          cell.dataset.row = r; cell.dataset.col = c;
+          cell.textContent = data[r][c];
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    buildGrid('inputGrid', inputData);
+    buildGrid('kernelGrid', kernel);
+
+    const output = [];
+    for (let r = 0; r <= 3; r++) {
+      const row = [];
+      for (let c = 0; c <= 3; c++) {
+        let sum = 0;
+        for (let kr = 0; kr < 3; kr++)
+          for (let kc = 0; kc < 3; kc++)
+            sum += inputData[r + kr][c + kc] * kernel[kr][kc];
+        row.push(sum);
+      }
+      output.push(row);
+    }
+    buildGrid('outputGrid', output);
+
+    let cp = { r: 0, c: 0 };
+    function animateConv() {
+      const ic = document.querySelectorAll('#inputGrid .pixel-cell');
+      const kc = document.querySelectorAll('#kernelGrid .pixel-cell');
+      const oc = document.querySelectorAll('#outputGrid .pixel-cell');
+      ic.forEach(c => c.classList.remove('active'));
+      kc.forEach(c => c.classList.remove('kernel-active'));
+      oc.forEach(c => c.classList.remove('output-active'));
+
+      for (let kr = 0; kr < 3; kr++)
+        for (let kcc = 0; kcc < 3; kcc++) {
+          const idx = (cp.r + kr) * 6 + (cp.c + kcc);
+          if (ic[idx]) ic[idx].classList.add('active');
+        }
+      kc.forEach(c => c.classList.add('kernel-active'));
+
+      const oi = cp.r * 4 + cp.c;
+      if (oc[oi]) oc[oi].classList.add('output-active');
+
+      document.getElementById('convFormula').innerHTML =
+        'output[' + cp.r + '][' + cp.c + '] = <span class="hl">' + output[cp.r][cp.c] + '</span>';
+
+      cp.c++;
+      if (cp.c > 3) { cp.c = 0; cp.r++; }
+      if (cp.r > 3) { cp.r = 0; cp.c = 0; }
+    }
+    setInterval(animateConv, 1200);
+
+    // PARTICLE BACKGROUND
+    const canvas = document.getElementById('vision-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: -1000, y: -1000 };
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3; this.size = Math.random() * 1.5 + 0.5; this.alpha = Math.random() * 0.5 + 0.1; }
+      update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
+      draw() { const dx = mouse.x - this.x, dy = mouse.y - this.y, d = Math.sqrt(dx * dx + dy * dy); const g = d < 200 ? (1 - d / 200) * 0.8 : 0; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,212,170,' + (this.alpha + g) + ')'; ctx.fill(); }
+    }
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+    function connectP() {
+      for (let i = 0; i < particles.length; i++) for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 150) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = 'rgba(0,212,170,' + (0.06 * (1 - d / 150)) + ')'; ctx.lineWidth = 0.5; ctx.stroke(); }
+      }
+    }
+    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); connectP(); requestAnimationFrame(animate); }
+    animate();
+
+    // SCROLL REVEAL
+    const obs = new IntersectionObserver(entries => { entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 100); }); }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    document.querySelectorAll('nav a').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); }); });
+  </script>
+</body>
+
+</html>
