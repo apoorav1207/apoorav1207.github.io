@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSNR, SSIM, and LPIPS — Are We Measuring Image Quality Wrong? | Apoorav Maulik Sharma</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    article {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 3rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .article-header {
+      margin-bottom: 3rem;
+    }
+
+    .article-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .article-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-primary);
+    }
+
+    .article-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .metrics-comparison {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .metrics-comparison h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+
+    .metric-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-card h5 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .metric-card .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .metric-card .pros, .metric-card .cons {
+      padding: 0.8rem;
+      border-radius: 6px;
+    }
+
+    .metric-card .pros {
+      background: rgba(0, 212, 170, 0.1);
+      border-left: 3px solid var(--accent);
+    }
+
+    .metric-card .cons {
+      background: rgba(255, 85, 85, 0.1);
+      border-left: 3px solid #ff5555;
+    }
+
+    .metric-card .pros h6, .metric-card .cons h6 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .metric-card .pros h6 {
+      color: var(--accent);
+    }
+
+    .metric-card .cons h6 {
+      color: #ff5555;
+    }
+
+    .metric-card .pros ul, .metric-card .cons ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .metric-card .pros li, .metric-card .cons li {
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .example-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .example-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .example-card h5 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .example-card .score {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .example-card.high .score {
+      color: var(--accent);
+    }
+
+    .example-card.medium .score {
+      color: #ffaa00;
+    }
+
+    .example-card.low .score {
+      color: #ff5555;
+    }
+
+    .example-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      article {
+        padding: 6rem 1.5rem 3rem;
+      }
+
+      .metric-card .pros-cons {
+        grid-template-columns: 1fr;
+      }
+
+      .example-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+  </nav>
+
+  <article>
+    <div class="article-header">
+      <div class="article-category">Opinion</div>
+      <h1 class="article-title">PSNR, SSIM, and LPIPS — Are We Measuring Image Quality Wrong?</h1>
+      <div class="article-meta">
+        <span>October 2025</span>
+        <span>•</span>
+        <span>4 min read</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Traditional image quality metrics dominate benchmarks and research papers, but do they truly capture perceptual quality? A critical examination of PSNR, SSIM, and LPIPS reveals fundamental limitations in how we evaluate image restoration and fusion algorithms. This analysis explores why current metrics may be misleading research directions and what alternatives might better align with human perception.</p>
+
+      <h2>The Traditional Metrics: What We've Been Using</h2>
+      
+      <p>For decades, three metrics have dominated image quality assessment: Peak Signal-to-Noise Ratio (PSNR), Structural Similarity Index (SSIM), and more recently, Learned Perceptual Image Patch Similarity (LPIPS). Each represents a different philosophy in quality assessment, but all share critical limitations.</p>
+
+      <div class="metrics-comparison">
+        <h4>Traditional Metrics Deep Dive</h4>
+        
+        <div class="metric-card">
+          <h5>Peak Signal-to-Noise Ratio (PSNR)</h5>
+          <p>PSNR measures the ratio between the maximum possible power of a signal and the power of corrupting noise. It's calculated using the mean squared error (MSE):</p>
+          
+          <div class="formula">
+            PSNR = 10 × log₁₀(MAX<sub>I</sub>² / MSE)
+          </div>
+          
+          <div class="pros-cons">
+            <div class="pros">
+              <h6>Pros</h6>
+              <ul>
+                <li>Simple to calculate</li>
+                <li>Mathematically tractable</li>
+                <li>Widely adopted</li>
+                <li>Good for noise assessment</li>
+              </ul>
+            </div>
+            <div class="cons">
+              <h6>Cons</h6>
+              <ul>
+                <li>Poor correlation with perception</li>
+                <li>Doesn't capture structural info</li>
+                <li>Sensitive to small shifts</li>
+                <li>Meaningless absolute values</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <h5>Structural Similarity Index (SSIM)</h5>
+          <p>SSIM compares local patterns of pixel intensities normalized for luminance and contrast:</p>
+          
+          <div class="formula">
+            SSIM(x,y) = (l(x,y) × c(x,y) × s(x,y))^β
+          </div>
+          
+          <p>Where l, c, and s represent luminance, contrast, and structure comparisons respectively.</p>
+          
+          <div class="pros-cons">
+            <div class="pros">
+              <h6>Pros</h6>
+              <ul>
+                <li>Better correlation with perception</li>
+                <li>Captures structural information</li>
+                <li>Locally adaptive</li>
+                <li>Well-established</li>
+              </ul>
+            </div>
+            <div class="cons">
+              <h6>Cons</h6>
+              <ul>
+                <li>Window size sensitivity</li>
+                <li>Poor handling of texture</li>
+                <li>Limited to local comparisons</li>
+                <li>Still not perfect</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <h5>Learned Perceptual Image Patch Similarity (LPIPS)</h5>
+          <p>LPIPS uses deep neural networks features to measure perceptual similarity:</p>
+          
+          <div class="formula">
+            LPIPS(x,y) = Σ<sub>l</sub> w<sub>l</sub> ||ŷ<sub>l</sub> - ŷ<sub>l</sub>||²₂
+          </div>
+          
+          <p>Where ŷ represents features from layer l of a pre-trained network.</p>
+          
+          <div class="pros-cons">
+            <div class="pros">
+              <h6>Pros</h6>
+              <ul>
+                <li>Best correlation with humans</li>
+                <li>Captures high-level features</li>
+                <li>Learned from data</li>
+                <li>State-of-the-art performance</li>
+              </ul>
+            </div>
+            <div class="cons">
+              <h6>Cons</h6>
+              <ul>
+                <li>Computationally expensive</li>
+                <li>Black-box nature</li>
+                <li>Dataset bias</li>
+                <li>Not interpretable</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Fundamental Problem: Misaligned Objectives</h2>
+      
+      <p>The core issue with traditional metrics is that they measure similarity to a reference image, not perceptual quality in isolation. This creates several problems:</p>
+
+      <h3>Reference Dependency</h3>
+      <p>Most metrics require a ground truth reference, which is rarely available in real-world applications:</p>
+      <ul>
+        <li>Medical imaging: No "perfect" image exists</li>
+        <li>Computational photography: Multiple valid outputs</li>
+        <li>Art generation: Subjective quality assessment</li>
+        <li>Image fusion: No single ground truth</li>
+      </ul>
+
+      <h3>Task-Independent Evaluation</h3>
+      <p>Traditional metrics ignore the specific application context:</p>
+      <ul>
+        <li>Medical diagnosis prioritizes different features than aesthetic photography</li>
+        <li>Surveillance applications value detection accuracy over visual appeal</li>
+        <li>Compression artifacts may be acceptable in some contexts but not others</li>
+      </ul>
+
+      <h3>Perceptual Inconsistency</h3>
+      <p>Even the best metrics (LPIPS) show significant deviations from human judgment:</p>
+      <ul>
+        <li>Cultural differences in aesthetic preferences</li>
+        <li>Individual variations in visual acuity</li>
+        <li>Context-dependent quality assessment</li>
+        <li>Temporal consistency not captured</li>
+      </ul>
+
+      <h2>Case Studies: When Metrics Fail</h2>
+      
+      <div class="highlight-box">
+        <h4>Case Study 1: Image Fusion</h4>
+        <p>In infrared-visible image fusion, PSNR often favors images that preserve thermal signatures but lose visual details, while humans prefer balanced fusions that maintain both modalities' strengths. SSIM performs better but still struggles with the multi-modal nature of the task.</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Case Study 2: Medical Image Denoising</h4>
+        <p>High PSNR values can correspond to over-smoothed images that lose diagnostic information. Radiologists often prefer images with slightly lower PSNR that preserve subtle pathological features.</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Case Study 3: Computational Photography</h4>
+        <p>Portrait mode effects and HDR processing often reduce PSNR but significantly improve perceived quality. Users prefer aesthetically pleasing results over technically accurate reproductions.</p>
+      </div>
+
+      <h2>The Impact on Research Directions</h2>
+      
+      <p>The dominance of these metrics has shaped research in potentially problematic ways:</p>
+
+      <h3>Over-optimization on Metrics</h3>
+      <p>Researchers design algorithms that maximize metric scores rather than perceptual quality:</p>
+      <ul>
+        <li>Neural networks trained to minimize LPIPS loss</li>
+        <li>Classical algorithms tuned for PSNR optimization</li>
+        <li>Architectures designed around metric sensitivity</li>
+      </ul>
+
+      <h3>Neglect of Important Factors</h3>
+      <p>Factors not captured by metrics receive insufficient attention:</p>
+      <ul>
+        <li>Temporal consistency in video processing</li>
+        <li>Robustness to distribution shift</li>
+        <li>Computational efficiency and real-time performance</li>
+        <li>Interpretability and explainability</li>
+      </ul>
+
+      <h3>Publication Bias</h3>
+      <p>Papers with higher metric scores are more likely to be published, creating a feedback loop that reinforces metric-driven research.</p>
+
+      <h2>Toward Better Evaluation</h2>
+      
+      <h3>Task-Specific Metrics</h3>
+      <p>Developing metrics tailored to specific applications:</p>
+      <ul>
+        <li><strong>Medical Imaging:</strong> Diagnostic accuracy preservation</li>
+        <li><strong>Surveillance:</strong> Detection and recognition performance</li>
+        <li><strong>Photography:</strong> Aesthetic quality assessment</li>
+        <li><strong>Compression:</strong> Rate-distortion trade-offs</li>
+      </ul>
+
+      <h3>No-Reference Quality Assessment</h3>
+      <p>Methods that evaluate quality without ground truth:</p>
+      <ul>
+        <li>Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE)</li>
+        <li>Natural Image Quality Evaluator (NIQE)</li>
+        <li>Deep learning-based no-reference metrics</li>
+      </ul>
+
+      <h3>Human-Centric Evaluation</h3>
+      <p>Prioritizing human judgment in evaluation protocols:</p>
+      <ul>
+        <li>Large-scale user studies</li>
+        <li>Crowdsourced quality assessment</li>
+        <li>Expert evaluation for specialized domains</li>
+        <li>Longitudinal studies of quality perception</li>
+      </ul>
+
+      <h2>Practical Recommendations</h2>
+      
+      <div class="highlight-box">
+        <h4>For Researchers</h4>
+        <ul>
+          <li>Use multiple complementary metrics rather than relying on a single score</li>
+          <li>Include human evaluation whenever possible</li>
+          <li>Report task-specific performance metrics</li>
+          <li>Consider computational efficiency and robustness</li>
+          <li>Be transparent about metric limitations</li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        <h4>For Practitioners</h4>
+        <ul>
+          <li>Validate algorithms on real-world data</li>
+          <li>Consider end-user requirements over metric scores</li>
+          <li>Implement A/B testing for user-facing applications</li>
+          <li>Maintain human oversight for critical applications</li>
+          <li>Monitor for metric gaming and over-optimization</li>
+        </ul>
+      </div>
+
+      <h2>The Future of Image Quality Assessment</h2>
+      
+      <h3>Multimodal Evaluation</h3>
+      <p>Combining multiple assessment approaches:</p>
+      <ul>
+        <li>Hybrid metrics that combine traditional and learned approaches</li>
+        <li>Multi-task evaluation frameworks</li>
+        <li>Cross-modal quality assessment</li>
+      </ul>
+
+      <h3>Adaptive Metrics</h3>
+      <p>Metrics that adapt to specific contexts:</p>
+      <ul>
+        <li>Content-aware quality assessment</li>
+        <li>User preference learning</li>
+        <li>Application-specific metric tuning</li>
+      </ul>
+
+      <h3>Explainable AI for Quality Assessment</h3>
+      <p>Making quality decisions interpretable:</p>
+      <ul>
+        <li>Visual explanations for quality scores</li>
+        <li>Identifying specific quality factors</li>
+        <li>Providing actionable feedback for improvement</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      
+      <p>Traditional image quality metrics, while useful as tools, have fundamental limitations that are shaping research in potentially problematic directions. The over-reliance on PSNR, SSIM, and even LPIPS has led to optimization for metric scores rather than genuine perceptual quality improvement.</p>
+      
+      <p>The path forward requires a more nuanced approach to evaluation that considers task-specific requirements, human perception, and practical constraints. By developing more sophisticated evaluation frameworks and maintaining critical awareness of metric limitations, we can guide research toward more meaningful improvements in image processing and computer vision.</p>
+      
+      <p>Ultimately, the goal should be to create systems that genuinely improve human experience and capability, not just systems that score well on artificial benchmarks. The future of image quality assessment lies in bridging the gap between mathematical metrics and human perception.</p>
+    </div>
+  </article>
+</body>
+</html>

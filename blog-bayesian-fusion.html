@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Bayesian Priors Outperform Learned Weights in Low-Light Fusion | Apoorav Maulik Sharma</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    article {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 3rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .article-header {
+      margin-bottom: 3rem;
+    }
+
+    .article-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .article-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-primary);
+    }
+
+    .article-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      article {
+        padding: 6rem 1.5rem 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+  </nav>
+
+  <article>
+    <div class="article-header">
+      <div class="article-category">Featured Research</div>
+      <h1 class="article-title">Why Bayesian Priors Outperform Learned Weights in Low-Light Fusion</h1>
+      <div class="article-meta">
+        <span>March 2026</span>
+        <span>•</span>
+        <span>10 min read</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>In the realm of infrared-visible image fusion, the battle between hand-crafted priors and learned weights has intensified with the rise of deep learning. Yet, surprisingly, Bayesian priors continue to outperform neural network approaches in low-light conditions. This article explores why Gaussian, Laplacian, and Weibull likelihood functions create superior weight maps for IR-visible fusion — and why traditional methods still excel at edge preservation.</p>
+
+      <h2>The Bayesian Framework for Image Fusion</h2>
+      
+      <p>At its core, Bayesian image fusion treats the problem as an inference task where we seek the most probable fused image given observed infrared and visible inputs. The mathematical foundation rests on Bayes' theorem:</p>
+      
+      <div class="formula">
+        P(F|I,V) ∝ P(I,V|F) × P(F)
+      </div>
+      
+      <p>Where F represents the fused image, I the infrared image, and V the visible image. The likelihood term P(I,V|F) captures how well our fusion explains the observed data, while the prior P(F) encodes our assumptions about what constitutes a good fused image.</p>
+
+      <h3>Gaussian Priors: The Smoothness Assumption</h3>
+      
+      <p>Gaussian priors assume that natural images follow a Gaussian distribution in the gradient domain. This assumption leads to fusion weights that favor smooth transitions while preserving significant edges. The Gaussian likelihood function is particularly effective in low-light scenarios where noise follows a normal distribution.</p>
+      
+      <div class="formula">
+        w<sub>g</sub>(x,y) = exp(-||∇I(x,y) - ∇V(x,y)||² / 2σ²)
+      </div>
+      
+      <p>Where w<sub>g</sub> represents the Gaussian weight at pixel (x,y), and σ controls the sensitivity to gradient differences.</p>
+
+      <h3>Laplacian Priors: Edge-Preserving Fusion</h3>
+      
+      <p>Laplacian priors are particularly adept at preserving sharp edges and fine details. Unlike Gaussian priors that penalize all gradients equally, Laplacian priors are more forgiving of large gradients while heavily penalizing small variations — effectively acting as an edge-preserving filter.</p>
+      
+      <div class="highlight-box">
+        <h4>Key Insight</h4>
+        <p>The Laplacian distribution's heavy tails make it ideal for fusion scenarios where preserving edge information is critical, such as in surveillance and medical imaging applications.</p>
+      </div>
+
+      <h3>Weibull Priors: Adaptive Fusion</h3>
+      
+      <p>Perhaps the most versatile of the three, Weibull priors offer adaptive behavior that can be tuned to specific imaging conditions. The shape parameter k allows the Weibull distribution to approximate both exponential and Rayleigh distributions, making it suitable for varying noise characteristics.</p>
+      
+      <div class="formula">
+        w<sub>w</sub>(x,y) = (k/λ) × (||∇I(x,y) - ∇V(x,y)||/λ)^(k-1) × exp(-(||∇I(x,y) - ∇V(x,y)||/λ)^k)
+      </div>
+
+      <h2>Why Learned Weights Fall Short in Low-Light</h2>
+      
+      <p>Despite the success of deep learning in many computer vision tasks, learned weights for image fusion face several challenges in low-light conditions:</p>
+      
+      <ul>
+        <li><strong>Data Scarcity:</strong> High-quality paired IR-visible datasets in low-light conditions are rare, making it difficult to train robust models.</li>
+        <li><strong>Overfitting:</strong> Neural networks often overfit to training data, failing to generalize to unseen low-light scenarios.</li>
+        <li><strong>Computational Cost:</strong> Learned approaches typically require significant computational resources, making them impractical for real-time applications.</li>
+        <li><strong>Lack of Interpretability:</strong> Unlike Bayesian priors with clear mathematical foundations, learned weights operate as black boxes, making debugging and improvement challenging.</li>
+      </ul>
+
+      <h2>Edge Preservation: The Bayesian Advantage</h2>
+      
+      <p>One of the most significant advantages of Bayesian priors is their superior edge preservation capabilities. The mathematical formulation naturally incorporates edge information through gradient-based likelihood functions. This results in:</p>
+      
+      <ul>
+        <li><strong>Precise Edge Localization:</strong> Bayesian methods maintain exact edge positions without the blurring artifacts common in learned approaches.</li>
+        <li><strong>Adaptive Edge Strength:</strong> The weight maps automatically adapt to edge strength, preserving important structural information while suppressing noise.</li>
+        <li><strong>Multiscale Edge Handling:</strong> By operating at multiple scales, Bayesian fusion can capture both fine details and coarse structures effectively.</li>
+      </ul>
+
+      <h2>Practical Implementation Considerations</h2>
+      
+      <p>Implementing Bayesian fusion requires careful consideration of several factors:</p>
+      
+      <h3>Parameter Selection</h3>
+      <p>The choice of variance (σ) for Gaussian priors, scale parameter (b) for Laplacian priors, and shape/scale parameters (k, λ) for Weibull priors significantly impacts fusion quality. These parameters should be selected based on:</p>
+      <ul>
+        <li>Noise characteristics of the input images</li>
+        <li>Desired trade-off between smoothness and edge preservation</li>
+        <li>Computational constraints</li>
+      </ul>
+
+      <h3>Computational Efficiency</h3>
+      <p>Bayesian fusion can be efficiently implemented using:</p>
+      <ul>
+        <li>Integral images for rapid weight computation</li>
+        <li>Multi-scale pyramids for coarse-to-fine fusion</li>
+        <li>Parallel processing on GPU hardware</li>
+      </ul>
+
+      <h2>Future Directions</h2>
+      
+      <p>While Bayesian priors currently outperform learned weights in low-light fusion, the future may lie in hybrid approaches that combine the best of both worlds:</p>
+      
+      <ul>
+        <li><strong>Learnable Priors:</strong> Using neural networks to learn optimal prior parameters for specific imaging conditions.</li>
+        <li><strong>Adaptive Bayesian Models:</strong> Developing Bayesian frameworks that can automatically select and combine different priors based on image content.</li>
+        <li><strong>Uncertainty Quantification:</strong> Leveraging Bayesian methods to provide uncertainty estimates for fusion results.</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      
+      <p>Bayesian priors continue to dominate low-light IR-visible image fusion due to their mathematical rigor, interpretability, and superior edge preservation capabilities. While learned weights show promise for well-lit scenarios with abundant training data, the adaptive and principled nature of Bayesian methods makes them the preferred choice for challenging low-light conditions.</p>
+      
+      <p>As the field evolves, the most successful approaches will likely combine the theoretical foundation of Bayesian methods with the learning capabilities of neural networks, creating hybrid systems that leverage the strengths of both paradigms.</p>
+    </div>
+  </article>
+</body>
+</html>

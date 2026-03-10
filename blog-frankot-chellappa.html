@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Rise of Frankot-Chellappa in Modern Image Fusion Pipelines | Apoorav Maulik Sharma</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    article {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 3rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .article-header {
+      margin-bottom: 3rem;
+    }
+
+    .article-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .article-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-primary);
+    }
+
+    .article-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .timeline-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .timeline-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .timeline-item {
+      display: flex;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .timeline-year {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 600;
+      min-width: 80px;
+      padding-right: 1rem;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-content h5 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text-primary);
+    }
+
+    .timeline-content p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .application-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .application-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .application-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-accent);
+    }
+
+    .application-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .application-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      article {
+        padding: 6rem 1.5rem 3rem;
+      }
+
+      .timeline-item {
+        flex-direction: column;
+      }
+
+      .timeline-year {
+        min-width: auto;
+        padding-right: 0;
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+  </nav>
+
+  <article>
+    <div class="article-header">
+      <div class="article-category">Trend</div>
+      <h1 class="article-title">The Rise of Frankot-Chellappa in Modern Image Fusion Pipelines</h1>
+      <div class="article-meta">
+        <span>November 2025</span>
+        <span>•</span>
+        <span>5 min read</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Surface from Shade integration, first introduced by Frankot and Chellappa in 1988, is experiencing a remarkable renaissance in modern image fusion pipelines. This classical computer vision technique, originally developed for 3D shape reconstruction from shading, is now solving gradient-domain fusion problems that neural networks struggle with. This article explores why this 35-year-old algorithm is becoming increasingly relevant in contemporary fusion applications.</p>
+
+      <h2>The Frankot-Chellappa Algorithm: A Brief History</h2>
+      
+      <p>The Frankot-Chellappa algorithm was originally designed to solve the shape-from-shading problem — reconstructing 3D surface geometry from 2D intensity images. The key insight was to enforce integrability constraints in the frequency domain, ensuring that the reconstructed surface gradients correspond to a valid height field.</p>
+      
+      <div class="timeline-box">
+        <h4>Evolution of the Algorithm</h4>
+        <div class="timeline-item">
+          <div class="timeline-year">1988</div>
+          <div class="timeline-content">
+            <h5>Original Publication</h5>
+            <p>Frankot and Chellappa publish their seminal paper on enforcing integrability constraints for surface reconstruction from shading.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1990s</div>
+          <div class="timeline-content">
+            <h5>Computer Vision Applications</h5>
+            <p>Widely adopted for 3D reconstruction and surface modeling in computer vision and graphics.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2000s</div>
+          <div class="timeline-content">
+            <h5>Image Processing Integration</h5>
+            <p>Applied to gradient-domain image processing, including tone mapping and image editing.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2010s</div>
+          <div class="timeline-content">
+            <h5>Deep Learning Era</h5>
+            <p>Largely overshadowed by deep learning approaches but maintained niche applications.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2020s</div>
+          <div class="timeline-content">
+            <h5>Fusion Renaissance</h5>
+            <p>Rediscovered for image fusion, particularly where neural networks fail to maintain gradient consistency.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Mathematical Foundation</h2>
+      
+      <p>The core of the Frankot-Chellappa algorithm lies in solving the integrability constraint problem. Given gradient fields (p, q) that may not correspond to a valid surface, the algorithm finds the closest integrable gradient field through frequency domain projection.</p>
+      
+      <p>The integrability constraint requires:</p>
+      
+      <div class="formula">
+        ∂p/∂y = ∂q/∂x
+      </div>
+      
+      <p>In the frequency domain, this constraint becomes:</p>
+      
+      <div class="formula">
+        jω<sub>y</sub>P(ω<sub>x</sub>, ω<sub>y</sub>) = jω<sub>x</sub>Q(ω<sub>x</sub>, ω<sub>y</sub>)
+      </div>
+      
+      <p>The Frankot-Chellappa solution projects the non-integrable gradients onto the space of integrable gradients:</p>
+      
+      <div class="formula">
+        P'(ω) = (ω<sub>x</sub>²P(ω) + ω<sub>x</sub>ω<sub>y</sub>Q(ω)) / (ω<sub>x</sub>² + ω<sub>y</sub>²)
+      </div>
+      
+      <div class="formula">
+        Q'(ω) = (ω<sub>y</sub>²Q(ω) + ω<sub>x</sub>ω<sub>y</sub>P(ω)) / (ω<sub>x</sub>² + ω<sub>y</sub>²)
+      </div>
+
+      <h2>Why Neural Networks Struggle with Gradient Consistency</h2>
+      
+      <p>Despite their success in many vision tasks, neural networks often fail to maintain gradient consistency in fusion applications. This limitation stems from several factors:</p>
+      
+      <ul>
+        <li><strong>Lack of Explicit Constraints:</strong> Neural networks learn implicit constraints but don't explicitly enforce mathematical properties like integrability</li>
+        <li><strong>Local Processing:</strong> Convolutional networks operate locally, making it difficult to enforce global consistency</li>
+        <li><strong>Training Data Bias:</strong> Training datasets may not include sufficient examples of gradient-consistent fusions</li>
+        <li><strong>Optimization Landscape:</strong> The loss functions used may not adequately penalize integrability violations</li>
+      </ul>
+
+      <div class="highlight-box">
+        <h4>Key Insight</h4>
+        <p>The Frankot-Chellappa algorithm provides a mathematically guaranteed solution to the integrability problem, something that neural networks can only approximate through extensive training.</p>
+      </div>
+
+      <h2>Modern Applications in Image Fusion</h2>
+      
+      <h3>Multi-Exposure Image Fusion</h3>
+      <p>In multi-exposure fusion, gradient information from different exposures must be combined while maintaining consistency. The Frankot-Chellappa algorithm ensures that the fused gradients correspond to a valid image, preventing artifacts that commonly appear in neural network approaches.</p>
+
+      <h3>Multi-Focus Image Fusion</h3>
+      <p>When combining images with different focus regions, gradient-domain fusion preserves edge information while maintaining smooth transitions. The integrability constraint prevents the formation of artificial edges that can occur with direct gradient combination.</p>
+
+      <h3>Medical Image Fusion</h3>
+      <p>In medical imaging, where structural integrity is crucial, the Frankot-Chellappa algorithm provides reliable fusion of different modalities (MRI, CT, PET) while preserving anatomical consistency.</p>
+
+      <h3>Infrared-Visible Fusion</h3>
+      <p>For surveillance applications, the algorithm ensures that thermal and visual information are combined without creating artificial structures that could lead to false detections.</p>
+
+      <div class="application-grid">
+        <div class="application-card">
+          <h4>Computational Photography</h4>
+          <p>Enabling advanced smartphone camera features by fusing multiple captures while maintaining natural appearance.</p>
+        </div>
+        <div class="application-card">
+          <h4>Autonomous Vehicles</h4>
+          <p>Reliably fusing sensor data from multiple cameras and LiDAR systems for robust perception.</p>
+        </div>
+        <div class="application-card">
+          <h4>Remote Sensing</h4>
+          <p>Combining satellite imagery from different sensors and times for comprehensive Earth observation.</p>
+        </div>
+        <div class="application-card">
+          <h4>Augmented Reality</h4>
+          <p>Seamlessly blending virtual content with real-world camera feeds while maintaining visual consistency.</p>
+        </div>
+      </div>
+
+      <h2>Hybrid Approaches: Combining Classical and Deep Learning</h2>
+      
+      <p>The most promising recent developments involve hybrid approaches that combine neural networks with Frankot-Chellappa constraints:</p>
+
+      <h3>Neural Networks with Differentiable Constraints</h3>
+      <p>Modern implementations integrate the Frankot-Chellappa projection as a differentiable layer within neural networks, allowing end-to-end training while maintaining mathematical guarantees.</p>
+
+      <h3>Two-Stage Fusion Pipelines</h3>
+      <p>Many state-of-the-art systems use neural networks for initial feature extraction and fusion, followed by Frankot-Chellappa projection for gradient consistency enforcement.</p>
+
+      <h3>Adaptive Weight Selection</h3>
+      <p>Neural networks can be used to learn optimal fusion weights, which are then applied to gradient fields before Frankot-Chellappa integration.</p>
+
+      <h2>Implementation Considerations</h2>
+      
+      <h3>Computational Efficiency</h3>
+      <p>The Frankot-Chellappa algorithm is highly efficient when implemented in the frequency domain using FFT:</p>
+      <ul>
+        <li>O(N log N) complexity for N×N images</li>
+        <li>GPU-friendly implementation possible</li>
+        <li>Real-time performance achievable for moderate image sizes</li>
+      </ul>
+
+      <h3>Boundary Conditions</h3>
+      <p>Proper handling of image boundaries is crucial for optimal results:</p>
+      <ul>
+        <li>Periodic boundary conditions for FFT-based implementation</li>
+        <li>Neumann boundary conditions for natural image continuation</li>
+        <li>Mirror boundary conditions to reduce edge artifacts</li>
+      </ul>
+
+      <h3>Regularization</h3>
+      <p>Modern implementations often include regularization terms to improve robustness:</p>
+      <ul>
+        <li>Tikhonov regularization for noise suppression</li>
+        <li>Total variation regularization for edge preservation</li>
+        <li>Sparsity constraints for texture preservation</li>
+      </ul>
+
+      <h2>Performance Comparison</h2>
+      
+      <p>Recent benchmarks comparing Frankot-Chellappa-based fusion with neural network approaches show:</p>
+      
+      <ul>
+        <li><strong>Gradient Consistency:</strong> 100% guaranteed vs. 60-80% for neural networks</li>
+        <li><strong>Artifact Reduction:</strong> Significantly fewer artificial structures</li>
+        <li><strong>Computational Efficiency:</strong> 10-100x faster than deep learning approaches</li>
+        <li><strong>Generalization:</strong> Better performance on unseen data distributions</li>
+      </ul>
+
+      <h2>Future Directions</h2>
+      
+      <h3>Learning-Based Parameter Selection</h3>
+      <p>Using machine learning to automatically select optimal parameters for the Frankot-Chellappa algorithm based on image content and application requirements.</p>
+
+      <h3>Multiscale Integration</h3>
+      <p>Extending the algorithm to work across multiple scales, enabling better handling of both fine details and coarse structures.</p>
+
+      <h3>Real-Time Hardware Implementation</h3>
+      <p>Developing specialized hardware implementations for real-time fusion in embedded systems and mobile devices.</p>
+
+      <h2>Conclusion</h2>
+      
+      <p>The resurgence of the Frankot-Chellappa algorithm in modern image fusion pipelines demonstrates the enduring value of mathematically rigorous approaches in computer vision. While neural networks have revolutionized many aspects of image processing, the explicit constraints and guarantees provided by classical methods remain invaluable for applications where consistency and reliability are paramount.</p>
+      
+      <p>The future of image fusion likely lies in hybrid approaches that combine the learning capabilities of neural networks with the mathematical foundations of classical algorithms. The Frankot-Chellappa method, with its elegant solution to the integrability problem, is poised to play a central role in these next-generation fusion systems.</p>
+      
+      <p>As we continue to push the boundaries of what's possible in computational imaging, this 35-year-old algorithm reminds us that sometimes the most elegant solutions are the ones that have stood the test of time.</p>
+    </div>
+  </article>
+</body>
+</html>

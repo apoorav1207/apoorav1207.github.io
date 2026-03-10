@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shearlet Transforms for IR-Visible Fusion: Energy, Regularization & Beyond | Apoorav Maulik Sharma</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    article {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 3rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .article-header {
+      margin-bottom: 3rem;
+    }
+
+    .article-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .article-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-primary);
+    }
+
+    .article-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .comparison-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .comparison-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .comparison-item {
+      background: var(--bg-secondary);
+      padding: 1.2rem;
+      border-radius: 8px;
+    }
+
+    .comparison-item h5 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .application-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .application-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .application-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-accent);
+    }
+
+    .application-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .application-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      article {
+        padding: 6rem 1.5rem 3rem;
+      }
+
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+  </nav>
+
+  <article>
+    <div class="article-header">
+      <div class="article-category">Explainer</div>
+      <h1 class="article-title">Shearlet Transforms for IR-Visible Fusion: Energy, Regularization & Beyond</h1>
+      <div class="article-meta">
+        <span>December 2025</span>
+        <span>•</span>
+        <span>6 min read</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Shearlet-based multi-scale decomposition has emerged as a powerful tool for infrared-visible image fusion, offering unique advantages over traditional wavelet transforms. By capturing directional features that wavelets miss and incorporating sophisticated regularization techniques, shearlet transforms enable superior fusion quality for surveillance and remote sensing applications. This article explores the mathematical foundations, practical implementations, and emerging applications of shearlet-based fusion.</p>
+
+      <h2>Understanding Shearlet Transforms</h2>
+      
+      <p>Shearlets are an advanced multi-scale representation system that provides optimal sparse approximations for anisotropic features. Unlike wavelets, which are limited in their directional sensitivity, shearlets can capture edges and contours at arbitrary orientations through a combination of scaling, shearing, and translation operations.</p>
+      
+      <p>The continuous shearlet transform is defined as:</p>
+      
+      <div class="formula">
+        SH<sub>ψ</sub>f(a, s, t) = ⟨f, ψ<sub>a,s,t</sub>⟩
+      </div>
+      
+      <p>Where ψ<sub>a,s,t</sub> represents the shearlet function with scale a, shear s, and translation t parameters. This formulation allows for precise control over the analysis of directional features.</p>
+
+      <h2>Mathematical Framework for Fusion</h2>
+      
+      <p>Shearlet-based fusion operates on the principle of decomposing input images into multi-scale, multi-directional subbands, then selectively fusing these components based on energy and activity measures.</p>
+
+      <h3>Multi-Scale Decomposition</h3>
+      
+      <p>The fusion process begins with decomposing both infrared (IR) and visible images into shearlet coefficients:</p>
+      
+      <div class="formula">
+        {C<sub>IR</sub><sup>j,k</sup>, C<sub>V</sub><sup>j,k</sup>} = ShearletDecompose(I<sub>IR</sub>, I<sub>V</sub>)
+      </div>
+      
+      <p>Where j represents the scale and k represents the direction. The low-frequency approximation coefficients are typically fused using averaging or weighted averaging, while high-frequency detail coefficients require more sophisticated fusion rules.</p>
+
+      <h3>Energy-Based Fusion Rules</h3>
+      
+      <p>Energy-based fusion rules select coefficients based on their local energy content, preserving the most informative features from both modalities:</p>
+      
+      <div class="formula">
+        C<sub>F</sub><sup>j,k</sup>(x,y) = {
+  C<sub>IR</sub><sup>j,k</sup>(x,y), if E<sub>IR</sub><sup>j,k</sup>(x,y) > E<sub>V</sub><sup>j,k</sup>(x,y)
+  C<sub>V</sub><sup>j,k</sup>(x,y), otherwise
+}
+      </div>
+      
+      <p>Where E represents the local energy computed over a sliding window:</p>
+      
+      <div class="formula">
+        E<sup>j,k</sup>(x,y) = Σ<sub>m,n</sub> |C<sup>j,k</sup>(x+m, y+n)|²
+      </div>
+
+      <h2>Regularization Techniques</h2>
+      
+      <p>Regularization plays a crucial role in shearlet-based fusion, ensuring smooth transitions and preventing artifacts. Two primary approaches are commonly used:</p>
+
+      <h3>L1 Regularization</h3>
+      <p>L1 regularization promotes sparsity in the fused coefficients, leading to sharper edge preservation:</p>
+      
+      <div class="formula">
+        min<sub>C<sub>F</sub></sub> ||C<sub>F</sub> - C<sub>selected</sub>||²₂ + λ||C<sub>F</sub>||₁
+      </div>
+      
+      <p>This formulation is particularly effective for preserving fine details and textures while suppressing noise.</p>
+
+      <h3>L2 Regularization</h3>
+      <p>L2 regularization enforces smoothness in the fused result, reducing artifacts and ensuring visual coherence:</p>
+      
+      <div class="formula">
+        min<sub>C<sub>F</sub></sub> ||C<sub>F</sub> - C<sub>selected</sub>||²₂ + λ||∇C<sub>F</sub>||²₂
+      </div>
+      
+      <p>This approach is beneficial for maintaining natural appearance in the fused image.</p>
+
+      <div class="comparison-box">
+        <h4>L1 vs L2 Regularization: When to Use Which</h4>
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <h5>L1 Regularization</h5>
+            <ul>
+              <li>Preserves sharp edges</li>
+              <li>Maintains fine textures</li>
+              <li>Better for high-frequency content</li>
+              <li>Can introduce piecewise constant artifacts</li>
+            </ul>
+          </div>
+          <div class="comparison-item">
+            <h5>L2 Regularization</h5>
+            <ul>
+              <li>Ensures smooth transitions</li>
+              <li>Reduces blocking artifacts</li>
+              <li>Better for natural scenes</li>
+              <li>May blur fine details</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2>Advantages Over Wavelet Transforms</h2>
+      
+      <p>Shearlet transforms offer several key advantages over traditional wavelet-based fusion:</p>
+
+      <h3>Optimal Directional Representation</h3>
+      <p>While wavelets are limited to horizontal, vertical, and diagonal directions, shearlets can capture features at any orientation. This is particularly important for surveillance applications where objects can appear at arbitrary angles.</p>
+
+      <h3>Better Anisotropic Feature Capture</h3>
+      <p>Shearlets provide optimal sparse approximations for anisotropic features like edges and contours, leading to better preservation of structural information in the fused result.</p>
+
+      <h3>Multi-Scale Directional Sensitivity</h3>
+      <p>The number of directional subbands increases with scale, allowing for increasingly fine directional analysis at higher resolutions.</p>
+
+      <div class="highlight-box">
+        <h4>Key Insight</h4>
+        <p>Shearlet transforms achieve near-optimal approximation rates for piecewise smooth images with C² curves, making them theoretically superior to wavelets for many fusion applications.</p>
+      </div>
+
+      <h2>Implementation Considerations</h2>
+      
+      <h3>Parameter Selection</h3>
+      
+      <ul>
+        <li><strong>Number of Scales:</strong> Typically 3-5 scales balance detail preservation and computational efficiency</li>
+        <li><strong>Directions per Scale:</strong> 6-16 directions per scale, increasing with scale</li>
+        <li><strong>Regularization Weight (λ):</strong> 0.1-10.0, depending on noise levels and desired smoothness</li>
+        <li><strong>Window Size:</strong> 3×3 to 7×7 for energy computation</li>
+      </ul>
+
+      <h3>Computational Efficiency</h3>
+      
+      <p>Shearlet transforms can be efficiently implemented using:</p>
+      <ul>
+        <li>Fast Fourier transform (FFT) for frequency-domain computation</li>
+        <li>GPU acceleration for parallel processing</li>
+        <li>Multi-resolution pyramids for hierarchical processing</li>
+      </ul>
+
+      <h2>Applications in Surveillance and Remote Sensing</h2>
+      
+      <div class="application-grid">
+        <div class="application-card">
+          <h4>Night Vision Enhancement</h4>
+          <p>Combining IR thermal imaging with visible spectrum data for enhanced nighttime surveillance capabilities, preserving both thermal signatures and visual details.</p>
+        </div>
+        <div class="application-card">
+          <h4>Target Detection</h4>
+          <p>Improving target detection accuracy by fusing multi-spectral data, leveraging IR's thermal contrast with visible's spatial resolution.</p>
+        </div>
+        <div class="application-card">
+          <h4>Weather Penetration</h4>
+          <p>Enhancing visibility through fog, smoke, and dust by combining IR's weather penetration with visible's color information.</p>
+        </div>
+        <div class="application-card">
+          <h4>Camouflage Detection</h4>
+          <p>Revealing camouflaged objects by fusing thermal signatures with visual patterns that are invisible to either spectrum alone.</p>
+        </div>
+      </div>
+
+      <h2>Recent Advances and Future Directions</h2>
+      
+      <h3>Deep Shearlet Networks</h3>
+      <p>Recent research has explored integrating shearlet transforms into deep learning architectures, creating hybrid models that combine the interpretability of shearlets with the learning capabilities of neural networks.</p>
+
+      <h3>Adaptive Shearlet Systems</h3>
+      <p>Adaptive shearlet transforms that can adjust their parameters based on local image content show promise for improving fusion quality across diverse scenarios.</p>
+
+      <h3>Real-Time Implementation</h3>
+      <p>Optimized implementations using specialized hardware (FPGAs, ASICs) are enabling real-time shearlet-based fusion for practical deployment in surveillance systems.</p>
+
+      <h2>Performance Evaluation</h2>
+      
+      <p>Quantitative evaluation of shearlet-based fusion typically includes:</p>
+      
+      <ul>
+        <li><strong>Entropy:</strong> Measures information content in the fused image</li>
+        <li><strong>Standard Deviation:</strong> Indicates contrast and dynamic range</li>
+        <li><strong>Mutual Information:</strong> Quantifies information transfer from source images</li>
+        <li><strong>Edge Preservation:</strong> Evaluates how well edges are maintained</li>
+        <li><strong>Structural Similarity (SSIM):</strong> Assesses perceptual quality</li>
+      </ul>
+
+      <p>Studies consistently show that shearlet-based fusion outperforms wavelet methods across these metrics, particularly in edge preservation and information content.</p>
+
+      <h2>Challenges and Limitations</h2>
+      
+      <div class="highlight-box">
+        <h4>Current Challenges</h4>
+        <ul>
+          <li><strong>Computational Complexity:</strong> Higher computational requirements compared to simpler methods</li>
+          <li><strong>Parameter Tuning:</strong> Requires careful parameter selection for optimal results</li>
+          <li><strong>Memory Requirements:</strong> Multi-scale decomposition demands significant memory</li>
+          <li><strong>Real-Time Constraints:</strong> Challenging for real-time applications without hardware acceleration</li>
+        </ul>
+      </div>
+
+      <h2>Conclusion</h2>
+      
+      <p>Shearlet transforms represent a significant advancement in infrared-visible image fusion, offering superior directional sensitivity and optimal sparse representations. When combined with appropriate regularization techniques, they enable high-quality fusion that preserves both structural details and important features from both modalities.</p>
+      
+      <p>While computational requirements remain a consideration, ongoing advances in algorithmic optimization and hardware acceleration are making shearlet-based fusion increasingly practical for real-world applications in surveillance and remote sensing.</p>
+      
+      <p>As the field continues to evolve, we can expect to see more sophisticated hybrid approaches that combine the mathematical rigor of shearlets with the adaptive capabilities of machine learning, opening new possibilities for multi-spectral image fusion.</p>
+    </div>
+  </article>
+</body>
+</html>

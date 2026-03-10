@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lipschitz Constraints for Image Decomposition: A MATLAB Walkthrough | Apoorav Maulik Sharma</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --text-primary: #e8e8f0;
+      --text-secondary: #8888a0;
+      --text-muted: #55556a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(0, 212, 170, 0.2);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    article {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 3rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .article-header {
+      margin-bottom: 3rem;
+    }
+
+    .article-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .article-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .article-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-primary);
+    }
+
+    .article-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .code-block .comment {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .code-block .keyword {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .code-block .function {
+      color: #7850ff;
+    }
+
+    .code-block .string {
+      color: #ffaa00;
+    }
+
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .step-box {
+      background: var(--bg-secondary);
+      border-left: 3px solid var(--accent);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .step-box h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      article {
+        padding: 6rem 1.5rem 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">AMS<span>::</span>CV</div>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+  </nav>
+
+  <article>
+    <div class="article-header">
+      <div class="article-category">Tutorial</div>
+      <h1 class="article-title">Lipschitz Constraints for Image Decomposition: A MATLAB Walkthrough</h1>
+      <div class="article-meta">
+        <span>February 2026</span>
+        <span>•</span>
+        <span>8 min read</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Image decomposition into base and detail layers is a fundamental technique in computer vision, enabling applications ranging from tone mapping to texture enhancement. Lipschitz-bounded gradient smoothing provides a mathematically rigorous approach to this decomposition, ensuring stable separation while preserving important structural information. This tutorial walks through implementing Lipschitz constraints for image decomposition, with code snippets from my Nature Scientific Reports paper.</p>
+
+      <h2>Understanding Lipschitz Continuity in Image Processing</h2>
+      
+      <p>A function f is Lipschitz continuous if there exists a constant L such that for all points x and y:</p>
+      
+      <div class="formula">
+        |f(x) - f(y)| ≤ L|x - y|
+      </div>
+      
+      <p>In image processing, this constraint ensures that the gradient magnitude of our smoothed image is bounded, preventing excessive variation that could lead to artifacts. The Lipschitz constant L controls the maximum allowed gradient, effectively determining how much detail is preserved in the base layer.</p>
+
+      <h2>Mathematical Framework</h2>
+      
+      <p>Given an input image I, we seek to decompose it into:</p>
+      
+      <div class="formula">
+        I = B + D
+      </div>
+      
+      <p>Where B is the base layer (smooth component) and D is the detail layer (high-frequency component). The base layer B is obtained by solving the following optimization problem:</p>
+      
+      <div class="formula">
+        min<sub>B</sub> ||I - B||²₂ + λ||∇B||₁
+      </div>
+      
+      <p>Subject to the Lipschitz constraint: ||∇B||∞ ≤ L</p>
+
+      <h3>Implementation Steps</h3>
+      
+      <div class="step-box">
+        <h4>Step 1: Gradient Computation</h4>
+        <p>First, we compute the image gradients using central differences:</p>
+      </div>
+      
+      <div class="code-block">
+<span class="comment">% Compute image gradients</span>
+<span class="keyword">function</span> [gx, gy] = <span class="function">compute_gradients</span>(I)
+    [h, w] = <span class="function">size</span>(I);
+    gx = <span class="function">zeros</span>(h, w);
+    gy = <span class="function">zeros</span>(h, w);
+    
+    <span class="comment">% Central differences</span>
+    gx(:, 2:end-1) = (I(:, 3:end) - I(:, 1:end-2)) / 2;
+    gy(2:end-1, :) = (I(3:end, :) - I(1:end-2, :)) / 2;
+    
+    <span class="comment">% Boundary conditions</span>
+    gx(:, 1) = I(:, 2) - I(:, 1);
+    gx(:, end) = I(:, end) - I(:, end-1);
+    gy(1, :) = I(2, :) - I(1, :);
+    gy(end, :) = I(end, :) - I(end-1, :);
+<span class="keyword">end</span>
+      </div>
+
+      <div class="step-box">
+        <h4>Step 2: Lipschitz Projection</h4>
+        <p>We project the gradients onto the feasible set defined by the Lipschitz constraint:</p>
+      </div>
+      
+      <div class="code-block">
+<span class="comment">% Project gradients onto Lipschitz ball</span>
+<span class="keyword">function</span> [gx_proj, gy_proj] = <span class="function">project_lipschitz</span>(gx, gy, L)
+    grad_mag = <span class="function">sqrt</span>(gx.^2 + gy.^2);
+    
+    <span class="comment">% Find pixels exceeding Lipschitz constant</span>
+    mask = grad_mag > L;
+    
+    <span class="comment">% Scale gradients to satisfy Lipschitz constraint</span>
+    scale_factor = <span class="function">min</span>(1, L ./ grad_mag);
+    gx_proj = gx .* scale_factor;
+    gy_proj = gy .* scale_factor;
+<span class="keyword">end</span>
+      </div>
+
+      <div class="step-box">
+        <h4>Step 3: Variational Optimization</h4>
+        <p>We use an iterative approach to solve the constrained optimization problem:</p>
+      </div>
+      
+      <div class="code-block">
+<span class="comment">% Main decomposition algorithm</span>
+<span class="keyword">function</span> B = <span class="function">lipschitz_decomposition</span>(I, L, lambda, max_iter)
+    [h, w] = <span class="function">size</span>(I);
+    B = I;  <span class="comment">% Initialize with input image</span>
+    
+    <span class="keyword">for</span> iter = 1:max_iter
+        <span class="comment">% Compute gradients of current base layer</span>
+        [gx, gy] = <span class="function">compute_gradients</span>(B);
+        
+        <span class="comment">% Apply Lipschitz constraint</span>
+        [gx_proj, gy_proj] = <span class="function">project_lipschitz</span>(gx, gy, L);
+        
+        <span class="comment">% Compute divergence</span>
+        div_gx = <span class="function">zeros</span>(h, w);
+        div_gy = <span class="function">zeros</span>(h, w);
+        div_gx(:, 2:end-1) = gx_proj(:, 3:end) - gx_proj(:, 1:end-2);
+        div_gy(2:end-1, :) = gy_proj(3:end, :) - gy_proj(1:end-2, :);
+        
+        <span class="comment">% Update base layer using gradient descent</span>
+        B = B - 0.1 * (2 * (B - I) - lambda * (div_gx + div_gy));
+        
+        <span class="comment">% Check convergence</span>
+        <span class="keyword">if</span> mod(iter, 100) == 0
+            residual = <span class="function">norm</span>(B - I, <span class="string">'fro'</span>) / <span class="function">numel</span>(I);
+            <span class="keyword">if</span> residual < 1e-6
+                <span class="keyword">break</span>;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+      </div>
+
+      <h2>Parameter Selection Guide</h2>
+      
+      <h3>Lipschitz Constant (L)</h3>
+      <p>The Lipschitz constant determines the maximum allowed gradient in the base layer:</p>
+      <ul>
+        <li><strong>Small L (0.01-0.05):</strong> Very smooth base layer, preserves only coarse structures</li>
+        <li><strong>Medium L (0.05-0.1):</strong> Balanced decomposition, good for general applications</li>
+        <li><strong>Large L (0.1-0.2):</strong> Less smoothing, preserves more details in base layer</li>
+      </ul>
+
+      <h3>Regularization Parameter (λ)</h3>
+      <p>The regularization parameter controls the trade-off between fidelity and smoothness:</p>
+      <ul>
+        <li><strong>Small λ (0.1-1.0):</strong> High fidelity to original image</li>
+        <li><strong>Medium λ (1.0-10.0):</strong> Balanced decomposition</li>
+        <li><strong>Large λ (10.0-100.0):</strong> Strong smoothing, may lose important details</li>
+      </ul>
+
+      <div class="highlight-box">
+        <h4>Pro Tip</h4>
+        <p>Start with L = 0.05 and λ = 1.0, then adjust based on your specific application. For medical imaging, use smaller L values to preserve subtle structures. For natural images, larger L values often work better.</p>
+      </div>
+
+      <h2>Complete Example</h2>
+      
+      <p>Here's a complete example showing how to use the decomposition:</p>
+      
+      <div class="code-block">
+<span class="comment">% Load and preprocess image</span>
+I = <span class="function">imread</span>(<span class="string">'input_image.jpg'</span>);
+<span class="keyword">if</span> <span class="function">size</span>(I, 3) == 3
+    I = <span class="function">rgb2gray</span>(I);
+<span class="keyword">end</span>
+I = <span class="function">double</span>(I) / 255.0;
+
+<span class="comment">% Set parameters</span>
+L = 0.05;        <span class="comment">% Lipschitz constant</span>
+lambda = 1.0;    <span class="comment">% Regularization parameter</span>
+max_iter = 1000; <span class="comment">% Maximum iterations</span>
+
+<span class="comment">% Perform decomposition</span>
+B = <span class="function">lipschitz_decomposition</span>(I, L, lambda, max_iter);
+D = I - B;  <span class="comment">% Detail layer</span>
+
+<span class="comment">% Visualize results</span>
+<span class="function">figure</span>;
+<span class="function">subplot</span>(1, 3, 1); <span class="function">imshow</span>(I); <span class="function">title</span>(<span class="string">'Original Image'</span>);
+<span class="function">subplot</span>(1, 3, 2); <span class="function">imshow</span>(B); <span class="function">title</span>(<span class="string">'Base Layer'</span>);
+<span class="function">subplot</span>(1, 3, 3); <span class="function">imshow</span>(D + 0.5); <span class="function">title</span>(<span class="string">'Detail Layer'</span>);
+      </div>
+
+      <h2>Applications and Use Cases</h2>
+      
+      <h3>1. Tone Mapping</h3>
+      <p>Decomposition enables tone mapping by processing base and detail layers separately:</p>
+      <div class="code-block">
+<span class="comment">% Tone mapping using decomposition</span>
+B_tmapped = <span class="function">log</span>(1 + 10 * B);  <span class="comment">% Compress base layer</span>
+D_enhanced = 1.5 * D;               <span class="comment">% Enhance details</span>
+I_tonemapped = B_tmapped + D_enhanced;
+      </div>
+
+      <h3>2. Noise Reduction</h3>
+      <p>The base layer naturally smooths noise while preserving edges:</p>
+      <div class="code-block">
+<span class="comment">% Noise reduction</span>
+denoised = B;  <span class="comment">% Base layer as denoised result</span>
+      </div>
+
+      <h3>3. Texture Enhancement</h3>
+      <p>Amplify the detail layer for texture enhancement:</p>
+      <div class="code-block">
+<span class="comment">% Texture enhancement</span>
+enhanced = I + 0.5 * D;  <span class="comment">% Amplify details</span>
+      </div>
+
+      <h2>Performance Optimization</h2>
+      
+      <h3>GPU Acceleration</h3>
+      <p>For large images, consider GPU acceleration:</p>
+      <div class="code-block">
+<span class="comment">% Convert to GPU arrays</span>
+I_gpu = <span class="function">gpuArray</span>(I);
+
+<span class="comment">% Run decomposition on GPU</span>
+B_gpu = <span class="function">lipschitz_decomposition_gpu</span>(I_gpu, L, lambda, max_iter);
+
+<span class="comment">% Convert back to CPU</span>
+B = <span class="function">gather</span>(B_gpu);
+      </div>
+
+      <h3>Multiscale Approach</h3>
+      <p>For better results, apply decomposition at multiple scales:</p>
+      <div class="code-block">
+<span class="comment">% Multiscale decomposition</span>
+scales = [1, 2, 4];
+B_multiscale = <span class="function">zeros</span>(<span class="function">size</span>(I));
+D_multiscale = <span class="function">zeros</span>(<span class="function">size</span>(I));
+
+<span class="keyword">for</span> i = 1:<span class="function">length</span>(scales)
+    scale = scales(i);
+    I_scaled = <span class="function">imresize</span>(I, 1/scale);
+    B_scaled = <span class="function">lipschitz_decomposition</span>(I_scaled, L, lambda, max_iter);
+    B_scaled = <span class="function">imresize</span>(B_scaled, <span class="function">size</span>(I));
+    B_multiscale = B_multiscale + B_scaled / <span class="function">length</span>(scales);
+<span class="keyword">end</span>
+
+D_multiscale = I - B_multiscale;
+      </div>
+
+      <h2>Common Pitfalls and Solutions</h2>
+      
+      <div class="highlight-box">
+        <h4>Pitfall 1: Oversmoothing</h4>
+        <p><strong>Problem:</strong> Base layer loses important structural information.</p>
+        <p><strong>Solution:</strong> Increase the Lipschitz constant L or decrease the regularization parameter λ.</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Pitfall 2: Slow Convergence</h4>
+        <p><strong>Problem:</strong> Algorithm takes too many iterations to converge.</p>
+        <p><strong>Solution:</strong> Use adaptive step sizes or more advanced optimization methods like L-BFGS.</p>
+      </div>
+
+      <div class="highlight-box">
+        <h4>Pitfall 3: Boundary Artifacts</h4>
+        <p><strong>Problem:</strong> Artifacts appear at image boundaries.</p>
+        <p><strong>Solution:</strong> Use proper boundary conditions like Neumann or periodic boundary conditions.</p>
+      </div>
+
+      <h2>Conclusion</h2>
+      
+      <p>Lipschitz-bounded gradient smoothing provides a robust framework for image decomposition that balances mathematical rigor with practical effectiveness. The constraint-based approach ensures stable separation of base and detail layers while preserving important structural information.</p>
+      
+      <p>The MATLAB implementation presented here offers a starting point for researchers and practitioners looking to incorporate Lipschitz constraints into their image processing pipelines. The modular design allows for easy customization and extension to specific applications.</p>
+      
+      <p>Future work could explore adaptive Lipschitz constants that vary across the image, or integration with deep learning approaches for end-to-end optimization. The mathematical foundation remains solid, making Lipschitz constraints a valuable tool in the image processing toolkit.</p>
+    </div>
+  </article>
+</body>
+</html>
